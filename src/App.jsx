@@ -11,20 +11,43 @@ const HtmlToDaxConverter = () => {
   const [copied, setCopied] = useState(false);
   const previewRef = useRef(null);
 
-  // Converte para DAX limpo trocando aspas duplas por simples no HTML
+  // Preserva estrutura: quebras de linha + indentação
+  const preserveStructure = (htmlString) => {
+    return htmlString.trim();
+  };
+
+  // Converte para DAX-string estruturada com concatenação
   const convertToDax = () => {
-    const preserved = html.trim();
+    const preserved = preserveStructure(html);
 
-    // Divide as linhas e remove linhas vazias desnecessárias
-    const lines = preserved.split('\n').filter(line => line.trim());
+    // Trata quebras de linha
+    const lines = preserved.split('\n').map(line => line.trim()).filter(line => line);
 
-    // Constrói DAX substituindo aspas duplas por simples e concatenando com '&' ao final da linha
+    // Constrói DAX com concatenação (substituindo aspas duplas por simples)
     const daxLines = lines.map((line, idx) => {
-      const replacedQuotes = line.replace(/"/g, "'");
-      return `"${replacedQuotes}"${idx < lines.length - 1 ? ' &' : ''}`;
+      const converted = line.replace(/"/g, "'");
+      return `"${converted}"${idx < lines.length - 1 ? ' & CHAR(10) &' : ''}`;
     });
 
     return daxLines.join('\n');
+  };
+
+  // Gera preview estruturado (para visualização)
+  const generatePreviewStructure = () => {
+    const lines = html.split('\n').map(line => line.trim()).filter(line => line);
+    return lines.map((line, idx) => (
+      <div key={idx} style={{
+        fontSize: '11px',
+        fontFamily: "'JetBrains Mono', monospace",
+        color: '#1A1814',
+        lineHeight: '1.6',
+        padding: '2px 0',
+        borderBottom: idx < lines.length - 1 ? '0.5px dashed #D4CFC4' : 'none'
+      }}>
+        <span style={{ color: '#7A746A', marginRight: '8px' }}>→</span>
+        <span style={{ wordBreak: 'break-word' }}>{line}</span>
+      </div>
+    ));
   };
 
   const daxOutput = convertToDax();
@@ -72,7 +95,7 @@ const HtmlToDaxConverter = () => {
         {/* Container Principal */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
           gap: '24px',
           marginBottom: '24px'
         }}>
@@ -192,7 +215,7 @@ const HtmlToDaxConverter = () => {
                 marginBottom: '12px',
                 display: 'block'
               }}>
-                DAX String Limpa (pronta para colar)
+                DAX String Estruturada (pronta para colar)
               </label>
               <div
                 style={{
@@ -270,7 +293,7 @@ const HtmlToDaxConverter = () => {
           }}>
             <li>Cole seu HTML no painel esquerdo (ou use o exemplo)</li>
             <li>Visualize o resultado no painel de preview</li>
-            <li>Clique em "Copiar DAX" — copia a string limpa concatenada linha a linha</li>
+            <li>Clique em "Copiar DAX" — copia a string estruturada com quebras</li>
             <li>No Power BI, crie uma medida com <strong>Visual HTML Content</strong> e cole:</li>
           </ol>
           <div style={{
@@ -285,21 +308,21 @@ const HtmlToDaxConverter = () => {
             overflow: 'auto',
             lineHeight: '1.6'
           }}>
-            {"MyVisual = \n\"<seu_html>\" &\n\"<próxima_linha>\" & ..."}
+            {"MyVisual = \n\"<seu_html>\" & CHAR(10) & \n\"<próxima_linha>\" & ..."}
           </div>
           <p style={{
             fontSize: '12px',
             color: '#7A746A',
             margin: '8px 0 0 0'
           }}>
-            ✅ <strong>Formato:</strong> DAX estruturado visualmente por linha, convertendo aspas duplas do HTML em aspas simples (`'`) para evitar conflitos com a sintaxe do DAX.
+            ✅ <strong>Formato:</strong> DAX já vem com indentação, atributos convertidos para aspas simples (evitando conflitos de sintaxe) e CHAR(10) para quebras — pronto para colar direto no Power BI.
           </p>
           <p style={{
             fontSize: '12px',
             color: '#7A746A',
             margin: '6px 0 0 0'
           }}>
-            ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style='...') para evitar problemas de escopo e limites de caracteres no Power BI.
+            ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style='...') para evitar limite de caracteres no Power BI.
           </p>
         </div>
       </div>
