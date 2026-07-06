@@ -62,7 +62,7 @@ const HtmlToDaxConverter = () => {
         {/* Container Principal */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(350px, 1fr))',
+          gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))',
           gap: '24px',
           marginBottom: '24px'
         }}>
