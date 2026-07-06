@@ -302,3 +302,9 @@ const HtmlToDaxConverter = () => {
             ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style='...') para evitar problemas de escopo e limites de caracteres no Power BI.
           </p>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export default HtmlToDaxConverter;
