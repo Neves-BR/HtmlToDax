@@ -30,7 +30,10 @@ const HtmlToDaxConverter = () => {
       minHeight: '100vh',
       padding: '24px',
       fontFamily: "'Inter', sans-serif",
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      /* CORREÇÃO 1: Evita pulo lateral do navegador travando a barra de rolagem */
+      overflowY: 'scroll',
+      width: '100%'
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -62,7 +65,7 @@ const HtmlToDaxConverter = () => {
         {/* Container Principal */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
           gap: '24px',
           marginBottom: '24px',
           alignItems: 'start'
@@ -104,7 +107,8 @@ const HtmlToDaxConverter = () => {
                 color: '#1A1814',
                 backgroundColor: '#FFFFFF',
                 resize: 'none',
-                overflowY: 'auto',
+                /* CORREÇÃO 2: Trava a rolagem para evitar mudanças sutis na largura da caixa */
+                overflowY: 'scroll',
                 boxSizing: 'border-box'
               }}
               placeholder="Cole seu HTML aqui..."
@@ -138,7 +142,6 @@ const HtmlToDaxConverter = () => {
                 e.target.style.background = 'transparent';
               }}
             >
-              {/* Ícone fixado em tamanho com flexShrink 0 */}
               <RefreshCw size={14} width={14} height={14} style={{ flexShrink: 0 }} /> 
               <span>Resetar para exemplo</span>
             </button>
@@ -180,17 +183,24 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '16px',
-                  height: '100%',
+                  flex: '1 1 0%',
+                  /* CORREÇÃO 3: Segura qualquer conteúdo HTML instável dentro desta caixa */
                   overflow: 'auto',
+                  position: 'relative',
+                  boxSizing: 'border-box',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  boxSizing: 'border-box'
+                  justifyContent: 'center'
                 }}
               >
                 <div 
-                  style={{ width: '100%', maxHeight: '100%', overflow: 'hidden' }}
+                  style={{ 
+                    width: '100%', 
+                    maxHeight: '100%', 
+                    overflow: 'auto',
+                    /* Impede o layout shift de SVGs sem proporção definida colados pelo usuário */
+                    display: 'block' 
+                  }}
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
               </div>
@@ -224,7 +234,8 @@ const HtmlToDaxConverter = () => {
                   borderRadius: '8px',
                   padding: '12px',
                   flex: '1 1 0%',
-                  overflowY: 'auto',
+                  /* CORREÇÃO 4: scroll forçado impede pulos na hora de renderizar o texto */
+                  overflowY: 'scroll',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
                   color: '#1A1814',
@@ -267,7 +278,6 @@ const HtmlToDaxConverter = () => {
                   e.target.style.background = '#E49D29';
                 }}
               >
-                {/* Ícone fixado em tamanho com flexShrink 0 */}
                 <Copy size={14} width={14} height={14} style={{ flexShrink: 0 }} />
                 <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
@@ -312,7 +322,7 @@ const HtmlToDaxConverter = () => {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '10px',
             color: '#1A1814',
-            overflow: 'auto',
+            overflowX: 'auto',
             lineHeight: '1.6',
             whiteSpace: 'pre'
           }}>
