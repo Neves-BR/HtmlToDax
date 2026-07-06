@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Copy, RefreshCw } from 'lucide-react';
 
 const HtmlToDaxConverter = () => {
@@ -9,6 +9,11 @@ const HtmlToDaxConverter = () => {
 
   const [html, setHtml] = useState(defaultHtml);
   const [copied, setCopied] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  // Refs para monitorar as dimensões do contêiner e do conteúdo gerado
+  const containerRef = useRef(null);
+  const contentRef = useRef(null);
 
   // Converte mantendo a formatação multilinhas nativa do DAX
   const convertToDax = () => {
@@ -23,6 +28,33 @@ const HtmlToDaxConverter = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Cálculo dinâmico de escala para forçar o conteúdo a caber no Preview sem scroll
+  useLayoutEffect(() => {
+    if (!containerRef.current || !contentRef.current) return;
+
+    const container = containerRef.current;
+    const content = contentRef.current;
+
+    // Remove temporariamente a escala para medir o tamanho real do elemento
+    content.style.transform = 'none';
+
+    const contentWidth = content.scrollWidth || 1;
+    const contentHeight = content.scrollHeight || 1;
+    
+    // Área disponível subtraindo o padding (16px em cada lado = 32px total)
+    const availableWidth = container.clientWidth - 32;
+    const availableHeight = container.clientHeight - 32;
+
+    // Calcula as proporções necessárias para largura e altura
+    const scaleX = availableWidth / contentWidth;
+    const scaleY = availableHeight / contentHeight;
+
+    // Pega o menor fator de escala para manter a proporção sem cortar (limita a 1 para não explodir itens pequenos)
+    const newScale = Math.min(1, scaleX, scaleY);
+
+    setScale(newScale);
+  }, [html]);
 
   return (
     <div style={{
@@ -141,7 +173,6 @@ const HtmlToDaxConverter = () => {
                 e.target.style.background = 'transparent';
               }}
             >
-              {/* CORREÇÃO CRÍTICA: Travando width e height absolutos para impedir expansão */}
               <RefreshCw 
                 size={14} 
                 style={{ 
@@ -167,7 +198,7 @@ const HtmlToDaxConverter = () => {
             boxSizing: 'border-box'
           }}>
             
-            {/* Preview (Sandbox Fixa) */}
+            {/* Preview (Sandbox Fixa sem Scroll) */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
@@ -191,7 +222,10 @@ const HtmlToDaxConverter = () => {
               }}>
                 Preview
               </label>
+              
+              {/* Contêiner restrito sem rolagens */}
               <div
+                ref={containerRef}
                 style={{
                   background: '#FFFFFF',
                   border: '0.5px solid #D4CFC4',
@@ -199,7 +233,7 @@ const HtmlToDaxConverter = () => {
                   padding: '16px',
                   flex: '1 1 0%',
                   minHeight: 0,
-                  overflow: 'auto',
+                  overflow: 'hidden', /* Força ocultação de barras de rolagem */
                   position: 'relative',
                   boxSizing: 'border-box',
                   display: 'flex',
@@ -207,13 +241,14 @@ const HtmlToDaxConverter = () => {
                   justifyContent: 'center'
                 }}
               >
-                {/* CORREÇÃO CRÍTICA: 'contain: content' isola o HTML/SVG colado e impede que interfira na página */}
+                {/* Elemento interno escalado via CSS Transform para caber nas dimensões exatas */}
                 <div 
+                  ref={contentRef}
                   style={{ 
-                    width: '100%', 
-                    maxHeight: '100%', 
-                    overflow: 'auto',
-                    display: 'block',
+                    width: '100%',
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.15s ease-out',
                     contain: 'content' 
                   }}
                   dangerouslySetInnerHTML={{ __html: html }}
@@ -296,7 +331,6 @@ const HtmlToDaxConverter = () => {
                   e.target.style.background = '#E49D29';
                 }}
               >
-                {/* CORREÇÃO CRÍTICA: Travando width e height absolutos para impedir expansão */}
                 <Copy 
                   size={14} 
                   style={{ 
