@@ -15,7 +15,6 @@ const HtmlToDaxConverter = () => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
 
-  // Monitorar redimensionamento para responsividade
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -94,7 +93,7 @@ const HtmlToDaxConverter = () => {
           minHeight: isMobile ? 'auto' : '620px'
         }}>
           
-          {/* Coluna Esquerda: Editores (Empilhados) */}
+          {/* Coluna Esquerda: Editores */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -265,7 +264,7 @@ const HtmlToDaxConverter = () => {
           <ol style={{ fontSize: '13px', color: '#7A746A', margin: '0', paddingLeft: '20px', lineHeight: '1.8' }}>
             <li>Cole seu HTML no painel esquerdo.</li>
             <li>Clique em "Copiar DAX" para copiar o bloco formatado.</li>
-            <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (=).</li>
+            <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (=):</li>
           </ol>
           <div style={{
             background: '#FFFFFF',
@@ -280,10 +279,11 @@ const HtmlToDaxConverter = () => {
             lineHeight: '1.6',
             whiteSpace: 'pre'
           }}>
-          {`MinhaMedidaHTML = 
-          "<div style='background: ...'>
-            <h2>Seu Título</h2>
-          </div>"`}
+{`MinhaMedidaHTML = 
+"<div style='background: ...'>
+  <h2>Seu Título</h2>
+</div>"`}
+          </div>
         </div>
       </div>
     </div>
