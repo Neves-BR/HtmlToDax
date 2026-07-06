@@ -318,12 +318,8 @@ const HtmlToDaxConverter = () => {
   <h2>Seu Título</h2>
 </div>"`}
           </div>
-          <p style={{
-            fontSize: '12px',
-            color: '#7A746A',
-            margin: '8px 0 0 0'
-          }}>
         </div>
+      </div>
     </div>
   );
 };
