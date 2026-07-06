@@ -267,6 +267,23 @@ const HtmlToDaxConverter = () => {
             <li>Clique em "Copiar DAX" para copiar o bloco formatado.</li>
             <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (=).</li>
           </ol>
+          <div style={{
+            background: '#FFFFFF',
+            border: '0.5px solid #D4CFC4',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            marginTop: '8px',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '10px',
+            color: '#1A1814',
+            overflowX: 'auto',
+            lineHeight: '1.6',
+            whiteSpace: 'pre'
+          }}>
+          {`MinhaMedidaHTML = 
+          "<div style='background: ...'>
+            <h2>Seu Título</h2>
+          </div>"`}
         </div>
       </div>
     </div>
