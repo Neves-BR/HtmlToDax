@@ -94,7 +94,7 @@ const HtmlToDaxConverter = () => {
               onChange={(e) => setHtml(e.target.value)}
               style={{
                 width: '100%',
-                flex: '1 1 0%', // Preenche o espaço disponível sem empurrar o botão
+                flex: '1 1 0%',
                 padding: '12px',
                 border: '0.5px solid #D4CFC4',
                 borderRadius: '8px',
@@ -113,7 +113,7 @@ const HtmlToDaxConverter = () => {
               onClick={() => setHtml(defaultHtml)}
               style={{
                 marginTop: '12px',
-                height: '38px', // Altura estritamente fixa
+                height: '38px',
                 minHeight: '38px',
                 maxHeight: '38px',
                 padding: '0 16px',
@@ -128,7 +128,7 @@ const HtmlToDaxConverter = () => {
                 justifyContent: 'center',
                 gap: '6px',
                 transition: 'all 0.2s',
-                flexShrink: 0, // Impede que o botão encolha
+                flexShrink: 0,
                 boxSizing: 'border-box'
               }}
               onMouseOver={(e) => {
@@ -138,7 +138,9 @@ const HtmlToDaxConverter = () => {
                 e.target.style.background = 'transparent';
               }}
             >
-              <RefreshCw size={14} /> Resetar para exemplo
+              {/* Ícone fixado em tamanho com flexShrink 0 */}
+              <RefreshCw size={14} width={14} height={14} style={{ flexShrink: 0 }} /> 
+              <span>Resetar para exemplo</span>
             </button>
           </div>
 
@@ -238,7 +240,7 @@ const HtmlToDaxConverter = () => {
                 onClick={copyToClipboard}
                 style={{
                   marginTop: '12px',
-                  height: '38px', // Altura estritamente fixa e igual ao botão esquerdo
+                  height: '38px',
                   minHeight: '38px',
                   maxHeight: '38px',
                   padding: '0 16px',
@@ -255,7 +257,7 @@ const HtmlToDaxConverter = () => {
                   gap: '6px',
                   width: '100%',
                   transition: 'all 0.2s',
-                  flexShrink: 0, // Impede que o botão encolha ou expanda
+                  flexShrink: 0,
                   boxSizing: 'border-box'
                 }}
                 onMouseOver={(e) => {
@@ -265,8 +267,9 @@ const HtmlToDaxConverter = () => {
                   e.target.style.background = '#E49D29';
                 }}
               >
-                <Copy size={14} />
-                {copied ? 'Copiado!' : 'Copiar DAX'}
+                {/* Ícone fixado em tamanho com flexShrink 0 */}
+                <Copy size={14} width={14} height={14} style={{ flexShrink: 0 }} />
+                <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
             </div>
           </div>
