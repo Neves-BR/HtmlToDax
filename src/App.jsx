@@ -11,43 +11,19 @@ const HtmlToDaxConverter = () => {
   const [copied, setCopied] = useState(false);
   const previewRef = useRef(null);
 
-  // Preserva estrutura: quebras de linha + indentação
-  const preserveStructure = (htmlString) => {
-    return htmlString.trim();
-  };
-
-  // Converte para DAX-string estruturada com concatenação
+  // Converte para DAX-string de linha única limpa (sem CHAR(10))
   const convertToDax = () => {
-    const preserved = preserveStructure(html);
+    const cleanedHtml = html
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line)
+      .join(' ');
 
-    // Trata quebras de linha
-    const lines = preserved.split('\n').map(line => line.trim()).filter(line => line);
+    // Substitui aspas duplas por aspas simples
+    const converted = cleanedHtml.replace(/"/g, "'");
 
-    // Constrói DAX com concatenação (substituindo aspas duplas por simples)
-    const daxLines = lines.map((line, idx) => {
-      const converted = line.replace(/"/g, "'");
-      return `"${converted}"${idx < lines.length - 1 ? ' & CHAR(10) &' : ''}`;
-    });
-
-    return daxLines.join('\n');
-  };
-
-  // Gera preview estruturado (para visualização)
-  const generatePreviewStructure = () => {
-    const lines = html.split('\n').map(line => line.trim()).filter(line => line);
-    return lines.map((line, idx) => (
-      <div key={idx} style={{
-        fontSize: '11px',
-        fontFamily: "'JetBrains Mono', monospace",
-        color: '#1A1814',
-        lineHeight: '1.6',
-        padding: '2px 0',
-        borderBottom: idx < lines.length - 1 ? '0.5px dashed #D4CFC4' : 'none'
-      }}>
-        <span style={{ color: '#7A746A', marginRight: '8px' }}>→</span>
-        <span style={{ wordBreak: 'break-word' }}>{line}</span>
-      </div>
-    ));
+    // Retorna envelopado em aspas duplas prontas para o DAX
+    return `"${converted}"`;
   };
 
   const daxOutput = convertToDax();
@@ -186,7 +162,6 @@ const HtmlToDaxConverter = () => {
                 Preview
               </label>
               <div
-                ref={previewRef}
                 style={{
                   background: '#FFFFFF',
                   border: '0.5px solid #D4CFC4',
@@ -201,7 +176,7 @@ const HtmlToDaxConverter = () => {
               />
             </div>
 
-            {/* DAX Output - Estruturado */}
+            {/* DAX Output - Simplificado */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
@@ -215,7 +190,7 @@ const HtmlToDaxConverter = () => {
                 marginBottom: '12px',
                 display: 'block'
               }}>
-                DAX String Estruturada (pronta para colar)
+                Código DAX (pronto para colar)
               </label>
               <div
                 style={{
@@ -228,8 +203,8 @@ const HtmlToDaxConverter = () => {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
                   color: '#1A1814',
-                  lineHeight: '1.8',
-                  wordBreak: 'break-word',
+                  lineHeight: '1.6',
+                  wordBreak: 'break-all',
                   whiteSpace: 'pre-wrap'
                 }}
               >
@@ -291,10 +266,9 @@ const HtmlToDaxConverter = () => {
             paddingLeft: '20px',
             lineHeight: '1.8'
           }}>
-            <li>Cole seu HTML no painel esquerdo (ou use o exemplo)</li>
-            <li>Visualize o resultado no painel de preview</li>
-            <li>Clique em "Copiar DAX" — copia a string estruturada com quebras</li>
-            <li>No Power BI, crie uma medida com <strong>Visual HTML Content</strong> e cole:</li>
+            <li>Cole seu HTML no painel esquerdo.</li>
+            <li>Clique em "Copiar DAX" para obter a string limpa.</li>
+            <li>No Power BI, crie uma nova medida e cole após o sinal de igual:</li>
           </ol>
           <div style={{
             background: '#FFFFFF',
@@ -308,21 +282,14 @@ const HtmlToDaxConverter = () => {
             overflow: 'auto',
             lineHeight: '1.6'
           }}>
-            {"MyVisual = \n\"<seu_html>\" & CHAR(10) & \n\"<próxima_linha>\" & ..."}
+            {"MinhaMedidaHTML = \"<codigo_html_com_aspas_simples_aqui>\""}
           </div>
           <p style={{
             fontSize: '12px',
             color: '#7A746A',
             margin: '8px 0 0 0'
           }}>
-            ✅ <strong>Formato:</strong> DAX já vem com indentação, atributos convertidos para aspas simples (evitando conflitos de sintaxe) e CHAR(10) para quebras — pronto para colar direto no Power BI.
-          </p>
-          <p style={{
-            fontSize: '12px',
-            color: '#7A746A',
-            margin: '6px 0 0 0'
-          }}>
-            ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style='...') para evitar limite de caracteres no Power BI.
+            ✅ <strong>Formato Limpo:</strong> O código remove quebras de linha desnecessárias do HTML original e converte todas as aspas internas para simples (`'`), permitindo que a string seja interpretada de forma direta pelo Power BI e pelo visual HTML Content.
           </p>
         </div>
       </div>
