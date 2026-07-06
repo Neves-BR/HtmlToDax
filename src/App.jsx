@@ -97,7 +97,6 @@ const HtmlToDaxConverter = () => {
               style={{
                 width: '100%',
                 flex: '1 1 0%',
-                /* CORREÇÃO CRÍTICA: minHeight 0 impede que o flex item empurre o botão ao receber textos longos */
                 minHeight: 0,
                 padding: '12px',
                 border: '0.5px solid #D4CFC4',
@@ -142,7 +141,19 @@ const HtmlToDaxConverter = () => {
                 e.target.style.background = 'transparent';
               }}
             >
-              <RefreshCw size={14} style={{ flexShrink: 0, minWidth: '14px', minHeight: '14px' }} /> 
+              {/* CORREÇÃO CRÍTICA: Travando width e height absolutos para impedir expansão */}
+              <RefreshCw 
+                size={14} 
+                style={{ 
+                  flexShrink: 0, 
+                  width: '14px', 
+                  height: '14px', 
+                  minWidth: '14px', 
+                  minHeight: '14px', 
+                  maxWidth: '14px', 
+                  maxHeight: '14px' 
+                }} 
+              /> 
               <span>Resetar para exemplo</span>
             </button>
           </div>
@@ -187,7 +198,6 @@ const HtmlToDaxConverter = () => {
                   borderRadius: '8px',
                   padding: '16px',
                   flex: '1 1 0%',
-                  /* CORREÇÃO CRÍTICA: minHeight 0 força o respeito ao tamanho da caixa pai */
                   minHeight: 0,
                   overflow: 'auto',
                   position: 'relative',
@@ -197,12 +207,14 @@ const HtmlToDaxConverter = () => {
                   justifyContent: 'center'
                 }}
               >
+                {/* CORREÇÃO CRÍTICA: 'contain: content' isola o HTML/SVG colado e impede que interfira na página */}
                 <div 
                   style={{ 
                     width: '100%', 
                     maxHeight: '100%', 
                     overflow: 'auto',
-                    display: 'block' 
+                    display: 'block',
+                    contain: 'content' 
                   }}
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
@@ -240,7 +252,6 @@ const HtmlToDaxConverter = () => {
                   borderRadius: '8px',
                   padding: '12px',
                   flex: '1 1 0%',
-                  /* CORREÇÃO CRÍTICA: minHeight 0 evita que o texto gerado esprema o botão de cópia */
                   minHeight: 0,
                   overflowY: 'scroll',
                   fontFamily: "'JetBrains Mono', monospace",
@@ -285,7 +296,19 @@ const HtmlToDaxConverter = () => {
                   e.target.style.background = '#E49D29';
                 }}
               >
-                <Copy size={14} style={{ flexShrink: 0, minWidth: '14px', minHeight: '14px' }} />
+                {/* CORREÇÃO CRÍTICA: Travando width e height absolutos para impedir expansão */}
+                <Copy 
+                  size={14} 
+                  style={{ 
+                    flexShrink: 0, 
+                    width: '14px', 
+                    height: '14px', 
+                    minWidth: '14px', 
+                    minHeight: '14px', 
+                    maxWidth: '14px', 
+                    maxHeight: '14px' 
+                  }} 
+                />
                 <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
             </div>
