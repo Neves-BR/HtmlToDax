@@ -11,17 +11,17 @@ const HtmlToDaxConverter = () => {
   const [copied, setCopied] = useState(false);
   const previewRef = useRef(null);
 
-  // Converte para DAX limpo (apenas concatenação visual por linha, sem CHAR(10))
+  // Converte para DAX limpo trocando aspas duplas por simples no HTML
   const convertToDax = () => {
     const preserved = html.trim();
 
     // Divide as linhas e remove linhas vazias desnecessárias
     const lines = preserved.split('\n').filter(line => line.trim());
 
-    // Constrói DAX escapando aspas duplas e concatenando com '&' ao final da linha
+    // Constrói DAX substituindo aspas duplas por simples e concatenando com '&' ao final da linha
     const daxLines = lines.map((line, idx) => {
-      const escaped = line.replace(/"/g, '\\"');
-      return `"${escaped}"${idx < lines.length - 1 ? ' &' : ''}`;
+      const replacedQuotes = line.replace(/"/g, "'");
+      return `"${replacedQuotes}"${idx < lines.length - 1 ? ' &' : ''}`;
     });
 
     return daxLines.join('\n');
@@ -292,19 +292,13 @@ const HtmlToDaxConverter = () => {
             color: '#7A746A',
             margin: '8px 0 0 0'
           }}>
-            ✅ <strong>Formato:</strong> DAX já vem estruturado visualmente por linha, com indentação e aspas duplas escapadas (`\"`).
+            ✅ <strong>Formato:</strong> DAX estruturado visualmente por linha, convertendo aspas duplas do HTML em aspas simples (`'`) para evitar conflitos com a sintaxe do DAX.
           </p>
           <p style={{
             fontSize: '12px',
             color: '#7A746A',
             margin: '6px 0 0 0'
           }}>
-            ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style="...") para evitar problemas de escopo e limites de caracteres no Power BI.
+            ℹ️ <strong>Dica:</strong> Mantenha CSS inline (style='...') para evitar problemas de escopo e limites de caracteres no Power BI.
           </p>
         </div>
-      </div>
-    </div>
-  );
-};
-
-export default HtmlToDaxConverter;
