@@ -30,7 +30,7 @@ const HtmlToDaxConverter = () => {
       background: '#FAF8F3',
       minHeight: '100vh',
       padding: '24px',
-      fontFamily: "'Cormorant Garamond', serif"
+      fontFamily: "'Inter', sans-serif"
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -46,7 +46,7 @@ const HtmlToDaxConverter = () => {
             fontWeight: '700',
             color: '#1A1814',
             margin: '0 0 8px 0',
-            fontFamily: "'Playfair Display', serif"
+            fontFamily: "'Inter', sans-serif"
           }}>
             HTML → DAX Converter
           </h1>
@@ -62,7 +62,7 @@ const HtmlToDaxConverter = () => {
         {/* Container Principal */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gridTemplateColumns: 'repeat(3, minmax(350px, 1fr))',
           gap: '24px',
           marginBottom: '24px'
         }}>
