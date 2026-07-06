@@ -11,18 +11,9 @@ const HtmlToDaxConverter = () => {
   const [copied, setCopied] = useState(false);
   const previewRef = useRef(null);
 
-  // Converte para DAX-string de linha única limpa (sem CHAR(10))
+  // Converte mantendo a formatação multilinhas nativa do DAX
   const convertToDax = () => {
-    const cleanedHtml = html
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line)
-      .join(' ');
-
-    // Substitui aspas duplas por aspas simples
-    const converted = cleanedHtml.replace(/"/g, "'");
-
-    // Retorna envelopado em aspas duplas prontas para o DAX
+    const converted = html.trim().replace(/"/g, "'");
     return `"${converted}"`;
   };
 
@@ -176,7 +167,7 @@ const HtmlToDaxConverter = () => {
               />
             </div>
 
-            {/* DAX Output - Simplificado */}
+            {/* DAX Output - Multilinhas */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
@@ -190,7 +181,7 @@ const HtmlToDaxConverter = () => {
                 marginBottom: '12px',
                 display: 'block'
               }}>
-                Código DAX (pronto para colar)
+                Código DAX (formatado e pronto para colar)
               </label>
               <div
                 style={{
@@ -204,7 +195,7 @@ const HtmlToDaxConverter = () => {
                   fontSize: '11px',
                   color: '#1A1814',
                   lineHeight: '1.6',
-                  wordBreak: 'break-all',
+                  wordBreak: 'break-word',
                   whiteSpace: 'pre-wrap'
                 }}
               >
@@ -267,8 +258,8 @@ const HtmlToDaxConverter = () => {
             lineHeight: '1.8'
           }}>
             <li>Cole seu HTML no painel esquerdo.</li>
-            <li>Clique em "Copiar DAX" para obter a string limpa.</li>
-            <li>No Power BI, crie uma nova medida e cole após o sinal de igual:</li>
+            <li>Clique em "Copiar DAX" para copiar o bloco formatado.</li>
+            <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (`=`):</li>
           </ol>
           <div style={{
             background: '#FFFFFF',
@@ -280,16 +271,20 @@ const HtmlToDaxConverter = () => {
             fontSize: '10px',
             color: '#1A1814',
             overflow: 'auto',
-            lineHeight: '1.6'
+            lineHeight: '1.6',
+            whiteSpace: 'pre'
           }}>
-            {"MinhaMedidaHTML = \"<codigo_html_com_aspas_simples_aqui>\""}
+{`MinhaMedidaHTML = 
+"<div style='background: ...'>
+  <h2>Seu Título</h2>
+</div>"`}
           </div>
           <p style={{
             fontSize: '12px',
             color: '#7A746A',
             margin: '8px 0 0 0'
           }}>
-            ✅ <strong>Formato Limpo:</strong> O código remove quebras de linha desnecessárias do HTML original e converte todas as aspas internas para simples (`'`), permitindo que a string seja interpretada de forma direta pelo Power BI e pelo visual HTML Content.
+            ✅ <strong>Formato Multilinhas:</strong> O DAX interpreta perfeitamente quebras de linha dentro de strings. Mantemos a legibilidade visual da sua estrutura original trocando apenas as aspas para evitar erros de sintaxe.
           </p>
         </div>
       </div>
