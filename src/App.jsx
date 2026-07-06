@@ -324,7 +324,6 @@ const HtmlToDaxConverter = () => {
             margin: '8px 0 0 0'
           }}>
         </div>
-      </div>
     </div>
   );
 };
