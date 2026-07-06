@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Copy, RefreshCw } from 'lucide-react';
 
 const HtmlToDaxConverter = () => {
@@ -9,7 +9,6 @@ const HtmlToDaxConverter = () => {
 
   const [html, setHtml] = useState(defaultHtml);
   const [copied, setCopied] = useState(false);
-  const previewRef = useRef(null);
 
   // Converte mantendo a formatação multilinhas nativa do DAX
   const convertToDax = () => {
@@ -30,7 +29,8 @@ const HtmlToDaxConverter = () => {
       background: '#FAF8F3',
       minHeight: '100vh',
       padding: '24px',
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: "'Inter', sans-serif",
+      boxSizing: 'border-box'
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -64,8 +64,10 @@ const HtmlToDaxConverter = () => {
           display: 'grid',
           gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))',
           gap: '24px',
-          marginBottom: '24px'
+          marginBottom: '24px',
+          alignItems: 'start' // Garante que as colunas não estiquem uma pela outra
         }}>
+          
           {/* Painel Esquerdo: Editor */}
           <div style={{
             background: '#F0EDE6',
@@ -73,7 +75,9 @@ const HtmlToDaxConverter = () => {
             borderRadius: '12px',
             padding: '20px',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            height: '480px', // Altura estritamente fixa
+            boxSizing: 'border-box'
           }}>
             <label style={{
               fontSize: '14px',
@@ -88,7 +92,8 @@ const HtmlToDaxConverter = () => {
               value={html}
               onChange={(e) => setHtml(e.target.value)}
               style={{
-                flex: 1,
+                width: '100%',
+                height: '370px', // Altura estritamente fixa para não mudar ao colar
                 padding: '12px',
                 border: '0.5px solid #D4CFC4',
                 borderRadius: '8px',
@@ -97,8 +102,9 @@ const HtmlToDaxConverter = () => {
                 lineHeight: '1.6',
                 color: '#1A1814',
                 backgroundColor: '#FFFFFF',
-                resize: 'vertical',
-                minHeight: '400px'
+                resize: 'none', // Impede redimensionamento manual e automático
+                overflowY: 'auto',
+                boxSizing: 'border-box'
               }}
               placeholder="Cole seu HTML aqui..."
             />
@@ -117,7 +123,8 @@ const HtmlToDaxConverter = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                flexShrink: 0
               }}
               onMouseOver={(e) => {
                 e.target.style.background = '#E0D9CC';
@@ -134,21 +141,29 @@ const HtmlToDaxConverter = () => {
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '24px'
+            gap: '24px',
+            height: '480px', // Altura estritamente fixa (igual à esquerda)
+            boxSizing: 'border-box'
           }}>
-            {/* Preview */}
+            
+            {/* Preview (Sandbox Fixa) */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
-              padding: '20px'
+              padding: '20px',
+              height: '228px', // Altura fixa
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: 'border-box'
             }}>
               <label style={{
                 fontSize: '14px',
                 fontWeight: '500',
                 color: '#1A1814',
                 marginBottom: '12px',
-                display: 'block'
+                display: 'block',
+                flexShrink: 0
               }}>
                 Preview
               </label>
@@ -158,13 +173,21 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '16px',
-                  minHeight: '180px',
+                  height: '100%',
+                  overflow: 'auto', // Segura o HTML caso seja maior que o container
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  position: 'relative',
+                  boxSizing: 'border-box'
                 }}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+              >
+                {/* Confinamento do HTML renderizado */}
+                <div 
+                  style={{ width: '100%', maxHeight: '100%', overflow: 'hidden' }}
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              </div>
             </div>
 
             {/* DAX Output - Multilinhas */}
@@ -172,14 +195,19 @@ const HtmlToDaxConverter = () => {
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
-              padding: '20px'
+              padding: '20px',
+              height: '228px', // Altura fixa
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: 'border-box'
             }}>
               <label style={{
                 fontSize: '14px',
                 fontWeight: '500',
                 color: '#1A1814',
                 marginBottom: '12px',
-                display: 'block'
+                display: 'block',
+                flexShrink: 0
               }}>
                 Código DAX (formatado e pronto para colar)
               </label>
@@ -189,14 +217,15 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  maxHeight: '320px',
+                  flex: 1,
                   overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
                   color: '#1A1814',
                   lineHeight: '1.6',
                   wordBreak: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box'
                 }}
               >
                 {daxOutput}
@@ -218,7 +247,8 @@ const HtmlToDaxConverter = () => {
                   justifyContent: 'center',
                   gap: '6px',
                   width: '100%',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  flexShrink: 0
                 }}
                 onMouseOver={(e) => {
                   e.target.style.background = '#D08A1A';
@@ -240,7 +270,8 @@ const HtmlToDaxConverter = () => {
           border: '0.5px solid #D4CFC4',
           borderRadius: '12px',
           padding: '16px',
-          marginBottom: '20px'
+          marginBottom: '20px',
+          boxSizing: 'border-box'
         }}>
           <h3 style={{
             fontSize: '14px',
