@@ -65,7 +65,7 @@ const HtmlToDaxConverter = () => {
           gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))',
           gap: '24px',
           marginBottom: '24px',
-          alignItems: 'start' // Garante que as colunas não estiquem uma pela outra
+          alignItems: 'start'
         }}>
           
           {/* Painel Esquerdo: Editor */}
@@ -76,7 +76,7 @@ const HtmlToDaxConverter = () => {
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
-            height: '480px', // Altura estritamente fixa
+            height: '480px',
             boxSizing: 'border-box'
           }}>
             <label style={{
@@ -84,7 +84,8 @@ const HtmlToDaxConverter = () => {
               fontWeight: '500',
               color: '#1A1814',
               marginBottom: '12px',
-              display: 'block'
+              display: 'block',
+              flexShrink: 0
             }}>
               Seu HTML / CSS
             </label>
@@ -93,7 +94,7 @@ const HtmlToDaxConverter = () => {
               onChange={(e) => setHtml(e.target.value)}
               style={{
                 width: '100%',
-                height: '370px', // Altura estritamente fixa para não mudar ao colar
+                flex: '1 1 0%', // Preenche o espaço disponível sem empurrar o botão
                 padding: '12px',
                 border: '0.5px solid #D4CFC4',
                 borderRadius: '8px',
@@ -102,7 +103,7 @@ const HtmlToDaxConverter = () => {
                 lineHeight: '1.6',
                 color: '#1A1814',
                 backgroundColor: '#FFFFFF',
-                resize: 'none', // Impede redimensionamento manual e automático
+                resize: 'none',
                 overflowY: 'auto',
                 boxSizing: 'border-box'
               }}
@@ -112,7 +113,10 @@ const HtmlToDaxConverter = () => {
               onClick={() => setHtml(defaultHtml)}
               style={{
                 marginTop: '12px',
-                padding: '8px 16px',
+                height: '38px', // Altura estritamente fixa
+                minHeight: '38px',
+                maxHeight: '38px',
+                padding: '0 16px',
                 background: 'transparent',
                 border: '0.5px solid #D4CFC4',
                 borderRadius: '6px',
@@ -124,7 +128,8 @@ const HtmlToDaxConverter = () => {
                 justifyContent: 'center',
                 gap: '6px',
                 transition: 'all 0.2s',
-                flexShrink: 0
+                flexShrink: 0, // Impede que o botão encolha
+                boxSizing: 'border-box'
               }}
               onMouseOver={(e) => {
                 e.target.style.background = '#E0D9CC';
@@ -142,7 +147,7 @@ const HtmlToDaxConverter = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',
-            height: '480px', // Altura estritamente fixa (igual à esquerda)
+            height: '480px',
             boxSizing: 'border-box'
           }}>
             
@@ -152,7 +157,7 @@ const HtmlToDaxConverter = () => {
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
               padding: '20px',
-              height: '228px', // Altura fixa
+              height: '228px',
               display: 'flex',
               flexDirection: 'column',
               boxSizing: 'border-box'
@@ -174,7 +179,7 @@ const HtmlToDaxConverter = () => {
                   borderRadius: '8px',
                   padding: '16px',
                   height: '100%',
-                  overflow: 'auto', // Segura o HTML caso seja maior que o container
+                  overflow: 'auto',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -182,7 +187,6 @@ const HtmlToDaxConverter = () => {
                   boxSizing: 'border-box'
                 }}
               >
-                {/* Confinamento do HTML renderizado */}
                 <div 
                   style={{ width: '100%', maxHeight: '100%', overflow: 'hidden' }}
                   dangerouslySetInnerHTML={{ __html: html }}
@@ -196,7 +200,7 @@ const HtmlToDaxConverter = () => {
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
               padding: '20px',
-              height: '228px', // Altura fixa
+              height: '228px',
               display: 'flex',
               flexDirection: 'column',
               boxSizing: 'border-box'
@@ -217,7 +221,7 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  flex: 1,
+                  flex: '1 1 0%',
                   overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
@@ -234,7 +238,10 @@ const HtmlToDaxConverter = () => {
                 onClick={copyToClipboard}
                 style={{
                   marginTop: '12px',
-                  padding: '10px 16px',
+                  height: '38px', // Altura estritamente fixa e igual ao botão esquerdo
+                  minHeight: '38px',
+                  maxHeight: '38px',
+                  padding: '0 16px',
                   background: '#E49D29',
                   color: '#FFFFFF',
                   border: 'none',
@@ -248,7 +255,8 @@ const HtmlToDaxConverter = () => {
                   gap: '6px',
                   width: '100%',
                   transition: 'all 0.2s',
-                  flexShrink: 0
+                  flexShrink: 0, // Impede que o botão encolha ou expanda
+                  boxSizing: 'border-box'
                 }}
                 onMouseOver={(e) => {
                   e.target.style.background = '#D08A1A';
@@ -315,8 +323,6 @@ const HtmlToDaxConverter = () => {
             color: '#7A746A',
             margin: '8px 0 0 0'
           }}>
-            ✅ <strong>Formato Multilinhas:</strong> O DAX interpreta perfeitamente quebras de linha dentro de strings. Mantemos a legibilidade visual da sua estrutura original trocando apenas as aspas para evitar erros de sintaxe.
-          </p>
         </div>
       </div>
     </div>
