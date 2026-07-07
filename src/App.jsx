@@ -26,6 +26,16 @@ const HtmlToDaxConverter = () => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
 
+  // Função para sanitizar o input do usuário e bloquear JS
+  const handleHtmlChange = (e) => {
+    let rawValue = e.target.value;
+    rawValue = rawValue.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    rawValue = rawValue.replace(/\bon[a-z]+\s*=\s*["'][^"']*["']/gi, '');
+    rawValue = rawValue.replace(/\bon[a-z]+\s*=\s*[^\s>]+/gi, '');
+    rawValue = rawValue.replace(/(href|src)\s*=\s*["']\s*javascript:[^"']*["']/gi, '$1="#"');
+    setHtml(rawValue);
+  };
+
   const convertToDax = () => {
     const converted = html.trim().replace(/"/g, "'");
     return `"${converted}"`;
@@ -39,50 +49,30 @@ const HtmlToDaxConverter = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
+  // Cálculo de Escala Baseado em Canvas Virtual Fixo
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     const updateScale = () => {
       const container = containerRef.current;
-
-      // Resolução virtual padrão em 16:9
       const VIRTUAL_WIDTH = 800;
       const VIRTUAL_HEIGHT = 450;
-
       const availableWidth = container.clientWidth;
       const availableHeight = container.clientHeight;
-
-      // Calculamos a escala APENAS pelas dimensões virtuais fixas.
-      // Isso impede que alterações internas do HTML afetem o zoom.
       const scaleX = availableWidth / VIRTUAL_WIDTH;
       const scaleY = availableHeight / VIRTUAL_HEIGHT;
-
       const padding = 0.96;
 
-      // Mantemos a margem de segurança e bloqueamos ampliações desnecessárias
-      const newScale = Math.min(
-        1,
-        scaleX * padding,
-        scaleY * padding
-      );
-
+      const newScale = Math.min(1, scaleX * padding, scaleY * padding);
       setScale(newScale);
     };
 
-    // Executa a primeira vez para ajustar a escala
     updateScale();
-
-    // Utiliza o ResizeObserver para manter a responsividade perfeita 
-    // sem depender do state do HTML ou de breakpoints específicos.
-    const resizeObserver = new ResizeObserver(() => {
-      updateScale();
-    });
-
+    const resizeObserver = new ResizeObserver(() => updateScale());
     resizeObserver.observe(containerRef.current);
 
     return () => resizeObserver.disconnect();
-  }, []); // Sem a dependência de 'html', o zoom fica totalmente estável ao digitar!
+  }, []);
 
   return (
     <div style={{
@@ -137,7 +127,8 @@ const HtmlToDaxConverter = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',
-            minHeight: 0
+            minHeight: 0,
+            height: '100%' // <-- Trava a altura da coluna
           }}>
             
             {/* Card 1: Seu HTML */}
@@ -148,7 +139,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: 1,
+              flex: '1 1 0', // <-- Impede o card de crescer infinitamente
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -164,10 +155,10 @@ const HtmlToDaxConverter = () => {
               </label>
               <textarea
                 value={html}
-                onChange={(e) => setHtml(e.target.value)}
+                onChange={handleHtmlChange}
                 style={{
                   width: '100%',
-                  flex: 1,
+                  flex: '1 1 0', // <-- Força o textarea a respeitar a rolagem interna
                   minHeight: 0,
                   padding: '12px',
                   border: '0.5px solid #D4CFC4',
@@ -202,7 +193,7 @@ const HtmlToDaxConverter = () => {
                   justifyContent: 'center',
                   gap: '6px',
                   transition: 'all 0.2s',
-                  flexShrink: 0,
+                  flexShrink: 0, // <-- Garante que o botão não encolha
                   boxSizing: 'border-box'
                 }}
                 onMouseOver={(e) => e.target.style.background = '#E0D9CC'}
@@ -221,7 +212,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: 1,
+              flex: '1 1 0', // <-- Impede o card de crescer infinitamente
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -241,7 +232,7 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  flex: 1,
+                  flex: '1 1 0', // <-- Força a div a respeitar a rolagem interna
                   minHeight: 0,
                   overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
@@ -276,7 +267,7 @@ const HtmlToDaxConverter = () => {
                   gap: '6px',
                   width: '100%',
                   transition: 'all 0.2s',
-                  flexShrink: 0,
+                  flexShrink: 0, // <-- Garante que o botão não encolha
                   boxSizing: 'border-box'
                 }}
                 onMouseOver={(e) => e.target.style.background = '#D08A1A'}
@@ -298,7 +289,8 @@ const HtmlToDaxConverter = () => {
             display: 'flex',
             flexDirection: 'column',
             boxSizing: 'border-box',
-            minHeight: 0
+            minHeight: 0,
+            height: '100%' // <-- Trava a altura da coluna da direita
           }}>
             <label style={{
               fontSize: '14px',
@@ -312,14 +304,13 @@ const HtmlToDaxConverter = () => {
             </label>
             
             <div style={{
-              flex: 1,
+              flex: '1 1 0', // <-- Previne redimensionamentos inesperados
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               minHeight: 0,
               width: '100%'
             }}>
-              {/* Moldura física do Canvas 16:9 */}
               <div
                 ref={containerRef}
                 style={{
@@ -329,12 +320,11 @@ const HtmlToDaxConverter = () => {
                   background: '#FFFFFF',
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
-                  position: 'relative', // Essencial para ancorar o posicionamento absoluto do filho
+                  position: 'relative',
                   overflow: 'hidden', 
                   boxSizing: 'border-box'
                 }}
               >
-                {/* O Canvas Virtual estático de 800x450 */}
                 <div 
                   ref={contentRef}
                   style={{ 
@@ -379,7 +369,7 @@ const HtmlToDaxConverter = () => {
             paddingLeft: '20px',
             lineHeight: '1.8'
           }}>
-            <li>Cole seu HTML no painel esquerdo.</li>
+            <li>Cole seu HTML no painel esquerdo. (Scripts e JS são bloqueados automaticamente)</li>
             <li>Clique em "Copiar DAX" para copiar o bloco formatado.</li>
             <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (`=`):</li>
           </ol>
