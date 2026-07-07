@@ -12,12 +12,8 @@ const HtmlToDaxConverter = () => {
   const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Hook para detectar responsividade
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1000);
-    };
-    
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 1000);
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
@@ -26,7 +22,6 @@ const HtmlToDaxConverter = () => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
 
-  // Função para sanitizar o input do usuário e bloquear JS
   const handleHtmlChange = (e) => {
     let rawValue = e.target.value;
     rawValue = rawValue.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -49,7 +44,6 @@ const HtmlToDaxConverter = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Cálculo de Escala Baseado em Canvas Virtual Fixo
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -128,7 +122,7 @@ const HtmlToDaxConverter = () => {
             flexDirection: 'column',
             gap: '24px',
             minHeight: 0,
-            height: '100%' // <-- Trava a altura da coluna
+            height: '100%'
           }}>
             
             {/* Card 1: Seu HTML */}
@@ -139,7 +133,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: '1 1 0', // <-- Impede o card de crescer infinitamente
+              flex: '1 1 0',
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -158,7 +152,7 @@ const HtmlToDaxConverter = () => {
                 onChange={handleHtmlChange}
                 style={{
                   width: '100%',
-                  flex: '1 1 0', // <-- Força o textarea a respeitar a rolagem interna
+                  flex: '1 1 0',
                   minHeight: 0,
                   padding: '12px',
                   border: '0.5px solid #D4CFC4',
@@ -179,8 +173,7 @@ const HtmlToDaxConverter = () => {
                 style={{
                   marginTop: '12px',
                   height: '38px',
-                  minHeight: '38px',
-                  maxHeight: '38px',
+                  flex: '0 0 38px', /* <-- Garante a altura estrita do botão */
                   padding: '0 16px',
                   background: 'transparent',
                   border: '0.5px solid #D4CFC4',
@@ -193,13 +186,24 @@ const HtmlToDaxConverter = () => {
                   justifyContent: 'center',
                   gap: '6px',
                   transition: 'all 0.2s',
-                  flexShrink: 0, // <-- Garante que o botão não encolha
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  overflow: 'hidden'
                 }}
                 onMouseOver={(e) => e.target.style.background = '#E0D9CC'}
                 onMouseOut={(e) => e.target.style.background = 'transparent'}
               >
-                <RefreshCw size={14} style={{ flexShrink: 0 }} /> 
+                {/* Estilos inline para o SVG blindando contra globais */}
+                <RefreshCw 
+                  size={14} 
+                  style={{ 
+                    flexShrink: 0, 
+                    width: '14px', 
+                    height: '14px', 
+                    minWidth: '14px', 
+                    minHeight: '14px',
+                    display: 'inline-block'
+                  }} 
+                /> 
                 <span>Resetar para exemplo</span>
               </button>
             </div>
@@ -212,7 +216,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: '1 1 0', // <-- Impede o card de crescer infinitamente
+              flex: '1 1 0',
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -232,7 +236,7 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  flex: '1 1 0', // <-- Força a div a respeitar a rolagem interna
+                  flex: '1 1 0',
                   minHeight: 0,
                   overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
@@ -251,8 +255,7 @@ const HtmlToDaxConverter = () => {
                 style={{
                   marginTop: '12px',
                   height: '38px',
-                  minHeight: '38px',
-                  maxHeight: '38px',
+                  flex: '0 0 38px', /* <-- Garante a altura estrita do botão */
                   padding: '0 16px',
                   background: '#E49D29',
                   color: '#FFFFFF',
@@ -267,13 +270,24 @@ const HtmlToDaxConverter = () => {
                   gap: '6px',
                   width: '100%',
                   transition: 'all 0.2s',
-                  flexShrink: 0, // <-- Garante que o botão não encolha
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  overflow: 'hidden'
                 }}
                 onMouseOver={(e) => e.target.style.background = '#D08A1A'}
                 onMouseOut={(e) => e.target.style.background = '#E49D29'}
               >
-                <Copy size={14} style={{ flexShrink: 0 }} />
+                {/* Estilos inline para o SVG blindando contra globais */}
+                <Copy 
+                  size={14} 
+                  style={{ 
+                    flexShrink: 0, 
+                    width: '14px', 
+                    height: '14px', 
+                    minWidth: '14px', 
+                    minHeight: '14px',
+                    display: 'inline-block'
+                  }} 
+                />
                 <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
             </div>
@@ -290,7 +304,7 @@ const HtmlToDaxConverter = () => {
             flexDirection: 'column',
             boxSizing: 'border-box',
             minHeight: 0,
-            height: '100%' // <-- Trava a altura da coluna da direita
+            height: '100%'
           }}>
             <label style={{
               fontSize: '14px',
@@ -304,7 +318,7 @@ const HtmlToDaxConverter = () => {
             </label>
             
             <div style={{
-              flex: '1 1 0', // <-- Previne redimensionamentos inesperados
+              flex: '1 1 0',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
