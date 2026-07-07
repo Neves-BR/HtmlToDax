@@ -12,24 +12,20 @@ const HtmlToDaxConverter = () => {
   const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Hook para detectar responsividade de forma elegante
+  // Hook para detectar responsividade
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 1000);
     };
     
-    // Verifica no carregamento inicial
     checkIsMobile();
-    
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Refs para monitorar as dimensões do contêiner e do conteúdo gerado
   const containerRef = useRef(null);
   const contentRef = useRef(null);
 
-  // Converte mantendo a formatação multilinhas nativa do DAX
   const convertToDax = () => {
     const converted = html.trim().replace(/"/g, "'");
     return `"${converted}"`;
@@ -43,31 +39,27 @@ const HtmlToDaxConverter = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Cálculo dinâmico de escala para forçar o conteúdo a caber no Preview sem scroll
+  // Lógica de "Fit to View" 
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     const container = containerRef.current;
     const content = contentRef.current;
 
-    // Remove temporariamente a escala para medir o tamanho real do elemento
     content.style.transform = 'none';
+
+    // A área disponível desconta o padding interno (16px de cada lado = 32px)
+    const availableWidth = container.clientWidth - 32;
+    const availableHeight = container.clientHeight - 32;
 
     const contentWidth = content.scrollWidth || 1;
     const contentHeight = content.scrollHeight || 1;
     
-    // Área disponível subtraindo o padding (16px em cada lado = 32px total)
-    const availableWidth = container.clientWidth - 32;
-    const availableHeight = container.clientHeight - 32;
-
-    // Calcula as proporções necessárias para largura e altura
     const scaleX = availableWidth / contentWidth;
     const scaleY = availableHeight / contentHeight;
 
-    // Margem de segurança conforme solicitado
     const padding = 0.96;
 
-    // Pega o menor fator de escala para manter a proporção sem cortar (limita a 1 para não explodir itens pequenos)
     const newScale = Math.min(
       1,
       scaleX * padding,
@@ -75,7 +67,7 @@ const HtmlToDaxConverter = () => {
     );
 
     setScale(newScale);
-  }, [html, isMobile]); // Recalcula a escala também ao redimensionar a tela
+  }, [html, isMobile]);
 
   return (
     <div style={{
@@ -114,7 +106,7 @@ const HtmlToDaxConverter = () => {
           </p>
         </div>
 
-        {/* Container Principal (Grid Responsivo) */}
+        {/* Container Principal */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
@@ -125,7 +117,7 @@ const HtmlToDaxConverter = () => {
           marginBottom: '24px'
         }}>
           
-          {/* Coluna Esquerda: Editores (HTML/CSS e DAX) */}
+          {/* Coluna Esquerda: Editores */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -133,7 +125,7 @@ const HtmlToDaxConverter = () => {
             minHeight: 0
           }}>
             
-            {/* Card 1: Seu HTML / CSS */}
+            {/* Card 1: Seu HTML */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
@@ -198,25 +190,10 @@ const HtmlToDaxConverter = () => {
                   flexShrink: 0,
                   boxSizing: 'border-box'
                 }}
-                onMouseOver={(e) => {
-                  e.target.style.background = '#E0D9CC';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'transparent';
-                }}
+                onMouseOver={(e) => e.target.style.background = '#E0D9CC'}
+                onMouseOut={(e) => e.target.style.background = 'transparent'}
               >
-                <RefreshCw 
-                  size={14} 
-                  style={{ 
-                    flexShrink: 0, 
-                    width: '14px', 
-                    height: '14px', 
-                    minWidth: '14px', 
-                    minHeight: '14px', 
-                    maxWidth: '14px', 
-                    maxHeight: '14px' 
-                  }} 
-                /> 
+                <RefreshCw size={14} style={{ flexShrink: 0 }} /> 
                 <span>Resetar para exemplo</span>
               </button>
             </div>
@@ -287,25 +264,10 @@ const HtmlToDaxConverter = () => {
                   flexShrink: 0,
                   boxSizing: 'border-box'
                 }}
-                onMouseOver={(e) => {
-                  e.target.style.background = '#D08A1A';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = '#E49D29';
-                }}
+                onMouseOver={(e) => e.target.style.background = '#D08A1A'}
+                onMouseOut={(e) => e.target.style.background = '#E49D29'}
               >
-                <Copy 
-                  size={14} 
-                  style={{ 
-                    flexShrink: 0, 
-                    width: '14px', 
-                    height: '14px', 
-                    minWidth: '14px', 
-                    minHeight: '14px', 
-                    maxWidth: '14px', 
-                    maxHeight: '14px' 
-                  }} 
-                />
+                <Copy size={14} style={{ flexShrink: 0 }} />
                 <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
             </div>
@@ -331,10 +293,9 @@ const HtmlToDaxConverter = () => {
               display: 'block',
               flexShrink: 0
             }}>
-              Preview (16:9)
+              Preview (16:9 Fit to View)
             </label>
             
-            {/* Contêiner flexível para centralizar o canvas 16:9 na tela toda */}
             <div style={{
               flex: 1,
               display: 'flex',
@@ -343,7 +304,7 @@ const HtmlToDaxConverter = () => {
               minHeight: 0,
               width: '100%'
             }}>
-              {/* O Canvas 16:9 real */}
+              {/* Canvas 16:9 estático */}
               <div
                 ref={containerRef}
                 style={{
@@ -354,24 +315,19 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '16px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  overflow: 'hidden', // Força ocultação de barras de rolagem
+                  overflow: 'hidden', 
                   position: 'relative',
                   boxSizing: 'border-box'
                 }}
               >
-                {/* Elemento interno escalado via CSS Transform */}
+                {/* O conteúdo agora possui tamanho e base 100%, parando com o zoom contínuo */}
                 <div 
                   ref={contentRef}
                   style={{ 
-                    display: 'inline-block',
-                    maxWidth: '100%',
+                    width: '100%',
+                    height: '100%',
                     transform: `scale(${scale})`,
-                    transformOrigin: 'center center',
-                    transition: 'transform 0.15s ease-out',
-                    contain: 'content' 
+                    transformOrigin: 'top left', // Comportamento idêntico à renderização do PBI
                   }}
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
@@ -381,7 +337,7 @@ const HtmlToDaxConverter = () => {
 
         </div>
 
-        {/* Instruções - Localizadas após o grid de edição */}
+        {/* Instruções */}
         <div style={{
           background: '#F0EDE6',
           border: '0.5px solid #D4CFC4',
