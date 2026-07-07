@@ -40,7 +40,6 @@ const HtmlToDaxConverter = () => {
   };
 
   // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
-  // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -84,6 +83,8 @@ const HtmlToDaxConverter = () => {
 
     return () => resizeObserver.disconnect();
   }, []); // Sem a dependência de 'html', o zoom fica totalmente estável ao digitar!
+
+  return (
     <div style={{
       background: '#FAF8F3',
       minHeight: '100vh',
@@ -403,6 +404,7 @@ const HtmlToDaxConverter = () => {
         </div>
       </div>
     </div>
+  );
 };
 
 export default HtmlToDaxConverter;
