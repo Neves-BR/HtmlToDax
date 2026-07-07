@@ -40,42 +40,50 @@ const HtmlToDaxConverter = () => {
   };
 
   // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
+  // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
-    const container = containerRef.current;
-    const content = contentRef.current;
+    const updateScale = () => {
+      const container = containerRef.current;
 
-    // Resolução virtual padrão em 16:9
-    const VIRTUAL_WIDTH = 800;
-    const VIRTUAL_HEIGHT = 450;
+      // Resolução virtual padrão em 16:9
+      const VIRTUAL_WIDTH = 800;
+      const VIRTUAL_HEIGHT = 450;
 
-    // Remove temporariamente o scale para não viciar a medição
-    content.style.transform = 'translate(-50%, -50%) scale(1)';
+      const availableWidth = container.clientWidth;
+      const availableHeight = container.clientHeight;
 
-    const availableWidth = container.clientWidth;
-    const availableHeight = container.clientHeight;
+      // Calculamos a escala APENAS pelas dimensões virtuais fixas.
+      // Isso impede que alterações internas do HTML afetem o zoom.
+      const scaleX = availableWidth / VIRTUAL_WIDTH;
+      const scaleY = availableHeight / VIRTUAL_HEIGHT;
 
-    // Medimos se o HTML inserido extrapolou nossa tela de 800x450
-    const contentWidth = content.scrollWidth || VIRTUAL_WIDTH;
-    const contentHeight = content.scrollHeight || VIRTUAL_HEIGHT;
-    
-    const scaleX = availableWidth / contentWidth;
-    const scaleY = availableHeight / contentHeight;
+      const padding = 0.96;
 
-    const padding = 0.96;
+      // Mantemos a margem de segurança e bloqueamos ampliações desnecessárias
+      const newScale = Math.min(
+        1,
+        scaleX * padding,
+        scaleY * padding
+      );
 
-    // Mantemos a margem de segurança e bloqueamos ampliações desnecessárias
-    const newScale = Math.min(
-      1,
-      scaleX * padding,
-      scaleY * padding
-    );
+      setScale(newScale);
+    };
 
-    setScale(newScale);
-  }, [html, isMobile]);
+    // Executa a primeira vez para ajustar a escala
+    updateScale();
 
-  return (
+    // Utiliza o ResizeObserver para manter a responsividade perfeita 
+    // sem depender do state do HTML ou de breakpoints específicos.
+    const resizeObserver = new ResizeObserver(() => {
+      updateScale();
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, []); // Sem a dependência de 'html', o zoom fica totalmente estável ao digitar!
     <div style={{
       background: '#FAF8F3',
       minHeight: '100vh',
