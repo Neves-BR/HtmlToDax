@@ -26,6 +26,25 @@ const HtmlToDaxConverter = () => {
   const containerRef = useRef(null);
   const contentRef = useRef(null);
 
+  // Função para sanitizar o input do usuário e bloquear JS
+  const handleHtmlChange = (e) => {
+    let rawValue = e.target.value;
+
+    // 1. Remove tags <script> inteiras e seu conteúdo
+    rawValue = rawValue.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+
+    // 2. Remove atributos de eventos inline com aspas duplas ou simples (ex: onclick="alert(1)", onmouseover='...')
+    rawValue = rawValue.replace(/\bon[a-z]+\s*=\s*["'][^"']*["']/gi, '');
+
+    // 3. Remove atributos de eventos inline sem aspas (ex: onclick=alert(1))
+    rawValue = rawValue.replace(/\bon[a-z]+\s*=\s*[^\s>]+/gi, '');
+
+    // 4. Bloqueia chamadas javascript: dentro de href ou src
+    rawValue = rawValue.replace(/(href|src)\s*=\s*["']\s*javascript:[^"']*["']/gi, '$1="#"');
+
+    setHtml(rawValue);
+  };
+
   const convertToDax = () => {
     const converted = html.trim().replace(/"/g, "'");
     return `"${converted}"`;
@@ -39,28 +58,24 @@ const HtmlToDaxConverter = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
+  // Cálculo de Escala Baseado em Canvas Virtual Fixo
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     const updateScale = () => {
       const container = containerRef.current;
 
-      // Resolução virtual padrão em 16:9
       const VIRTUAL_WIDTH = 800;
       const VIRTUAL_HEIGHT = 450;
 
       const availableWidth = container.clientWidth;
       const availableHeight = container.clientHeight;
 
-      // Calculamos a escala APENAS pelas dimensões virtuais fixas.
-      // Isso impede que alterações internas do HTML afetem o zoom.
       const scaleX = availableWidth / VIRTUAL_WIDTH;
       const scaleY = availableHeight / VIRTUAL_HEIGHT;
 
       const padding = 0.96;
 
-      // Mantemos a margem de segurança e bloqueamos ampliações desnecessárias
       const newScale = Math.min(
         1,
         scaleX * padding,
@@ -70,11 +85,8 @@ const HtmlToDaxConverter = () => {
       setScale(newScale);
     };
 
-    // Executa a primeira vez para ajustar a escala
     updateScale();
 
-    // Utiliza o ResizeObserver para manter a responsividade perfeita 
-    // sem depender do state do HTML ou de breakpoints específicos.
     const resizeObserver = new ResizeObserver(() => {
       updateScale();
     });
@@ -82,7 +94,7 @@ const HtmlToDaxConverter = () => {
     resizeObserver.observe(containerRef.current);
 
     return () => resizeObserver.disconnect();
-  }, []); // Sem a dependência de 'html', o zoom fica totalmente estável ao digitar!
+  }, []);
 
   return (
     <div style={{
@@ -164,7 +176,7 @@ const HtmlToDaxConverter = () => {
               </label>
               <textarea
                 value={html}
-                onChange={(e) => setHtml(e.target.value)}
+                onChange={handleHtmlChange} // <-- Função de sanitização aplicada aqui
                 style={{
                   width: '100%',
                   flex: 1,
@@ -319,7 +331,6 @@ const HtmlToDaxConverter = () => {
               minHeight: 0,
               width: '100%'
             }}>
-              {/* Moldura física do Canvas 16:9 */}
               <div
                 ref={containerRef}
                 style={{
@@ -329,12 +340,11 @@ const HtmlToDaxConverter = () => {
                   background: '#FFFFFF',
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
-                  position: 'relative', // Essencial para ancorar o posicionamento absoluto do filho
+                  position: 'relative',
                   overflow: 'hidden', 
                   boxSizing: 'border-box'
                 }}
               >
-                {/* O Canvas Virtual estático de 800x450 */}
                 <div 
                   ref={contentRef}
                   style={{ 
@@ -379,7 +389,7 @@ const HtmlToDaxConverter = () => {
             paddingLeft: '20px',
             lineHeight: '1.8'
           }}>
-            <li>Cole seu HTML no painel esquerdo.</li>
+            <li>Cole seu HTML no painel esquerdo. (Scripts e JS são bloqueados automaticamente)</li>
             <li>Clique em "Copiar DAX" para copiar o bloco formatado.</li>
             <li>No Power BI, crie uma nova medida e cole diretamente após o sinal de igual (`=`):</li>
           </ol>
