@@ -39,27 +39,33 @@ const HtmlToDaxConverter = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Lógica de "Fit to View" 
+  // Cálculo de Escala Baseado em Canvas Virtual Fixo (Resolve o efeito de zoom intermitente)
   useLayoutEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     const container = containerRef.current;
     const content = contentRef.current;
 
-    content.style.transform = 'none';
+    // Resolução virtual padrão em 16:9
+    const VIRTUAL_WIDTH = 800;
+    const VIRTUAL_HEIGHT = 450;
 
-    // A área disponível desconta o padding interno (16px de cada lado = 32px)
-    const availableWidth = container.clientWidth - 32;
-    const availableHeight = container.clientHeight - 32;
+    // Remove temporariamente o scale para não viciar a medição
+    content.style.transform = 'translate(-50%, -50%) scale(1)';
 
-    const contentWidth = content.scrollWidth || 1;
-    const contentHeight = content.scrollHeight || 1;
+    const availableWidth = container.clientWidth;
+    const availableHeight = container.clientHeight;
+
+    // Medimos se o HTML inserido extrapolou nossa tela de 800x450
+    const contentWidth = content.scrollWidth || VIRTUAL_WIDTH;
+    const contentHeight = content.scrollHeight || VIRTUAL_HEIGHT;
     
     const scaleX = availableWidth / contentWidth;
     const scaleY = availableHeight / contentHeight;
 
     const padding = 0.96;
 
+    // Mantemos a margem de segurança e bloqueamos ampliações desnecessárias
     const newScale = Math.min(
       1,
       scaleX * padding,
@@ -304,7 +310,7 @@ const HtmlToDaxConverter = () => {
               minHeight: 0,
               width: '100%'
             }}>
-              {/* Canvas 16:9 estático */}
+              {/* Moldura física do Canvas 16:9 */}
               <div
                 ref={containerRef}
                 style={{
@@ -314,20 +320,23 @@ const HtmlToDaxConverter = () => {
                   background: '#FFFFFF',
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
-                  padding: '16px',
+                  position: 'relative', // Essencial para ancorar o posicionamento absoluto do filho
                   overflow: 'hidden', 
-                  position: 'relative',
                   boxSizing: 'border-box'
                 }}
               >
-                {/* O conteúdo agora possui tamanho e base 100%, parando com o zoom contínuo */}
+                {/* O Canvas Virtual estático de 800x450 */}
                 <div 
                   ref={contentRef}
                   style={{ 
-                    width: '100%',
-                    height: '100%',
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left', // Comportamento idêntico à renderização do PBI
+                    width: '800px',
+                    height: '450px',
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: `translate(-50%, -50%) scale(${scale})`,
+                    transformOrigin: 'center center',
+                    boxSizing: 'border-box'
                   }}
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
