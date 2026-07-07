@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Copy, RefreshCw } from 'lucide-react';
 
 const HtmlToDaxConverter = () => {
@@ -10,6 +10,20 @@ const HtmlToDaxConverter = () => {
   const [html, setHtml] = useState(defaultHtml);
   const [copied, setCopied] = useState(false);
   const [scale, setScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Hook para detectar responsividade de forma elegante
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+    
+    // Verifica no carregamento inicial
+    checkIsMobile();
+    
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   // Refs para monitorar as dimensões do contêiner e do conteúdo gerado
   const containerRef = useRef(null);
@@ -50,11 +64,18 @@ const HtmlToDaxConverter = () => {
     const scaleX = availableWidth / contentWidth;
     const scaleY = availableHeight / contentHeight;
 
+    // Margem de segurança conforme solicitado
+    const padding = 0.96;
+
     // Pega o menor fator de escala para manter a proporção sem cortar (limita a 1 para não explodir itens pequenos)
-    const newScale = Math.min(1, scaleX, scaleY);
+    const newScale = Math.min(
+      1,
+      scaleX * padding,
+      scaleY * padding
+    );
 
     setScale(newScale);
-  }, [html]);
+  }, [html, isMobile]); // Recalcula a escala também ao redimensionar a tela
 
   return (
     <div style={{
@@ -67,7 +88,7 @@ const HtmlToDaxConverter = () => {
       width: '100%'
     }}>
       <div style={{
-        maxWidth: '1200px',
+        maxWidth: '1500px', // Nova largura máxima atualizada
         margin: '0 auto'
       }}>
         {/* Header */}
@@ -93,124 +114,36 @@ const HtmlToDaxConverter = () => {
           </p>
         </div>
 
-        {/* Container Principal */}
+        {/* Container Principal (Grid Responsivo) */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           gap: '24px',
-          marginBottom: '24px',
-          alignItems: 'start'
+          alignItems: 'stretch',
+          height: isMobile ? 'auto' : 'calc(100vh - 210px)', // Altura travada
+          minHeight: '620px',
+          marginBottom: '24px'
         }}>
           
-          {/* Painel Esquerdo: Editor */}
-          <div style={{
-            background: '#F0EDE6',
-            border: '0.5px solid #D4CFC4',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '480px',
-            boxSizing: 'border-box'
-          }}>
-            <label style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#1A1814',
-              marginBottom: '12px',
-              display: 'block',
-              flexShrink: 0
-            }}>
-              Seu HTML / CSS
-            </label>
-            <textarea
-              value={html}
-              onChange={(e) => setHtml(e.target.value)}
-              style={{
-                width: '100%',
-                flex: '1 1 0%',
-                minHeight: 0,
-                padding: '12px',
-                border: '0.5px solid #D4CFC4',
-                borderRadius: '8px',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '12px',
-                lineHeight: '1.6',
-                color: '#1A1814',
-                backgroundColor: '#FFFFFF',
-                resize: 'none',
-                overflowY: 'scroll',
-                boxSizing: 'border-box'
-              }}
-              placeholder="Cole seu HTML aqui..."
-            />
-            <button
-              onClick={() => setHtml(defaultHtml)}
-              style={{
-                marginTop: '12px',
-                height: '38px',
-                minHeight: '38px',
-                maxHeight: '38px',
-                padding: '0 16px',
-                background: 'transparent',
-                border: '0.5px solid #D4CFC4',
-                borderRadius: '6px',
-                color: '#7A746A',
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.2s',
-                flexShrink: 0,
-                boxSizing: 'border-box'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = '#E0D9CC';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'transparent';
-              }}
-            >
-              <RefreshCw 
-                size={14} 
-                style={{ 
-                  flexShrink: 0, 
-                  width: '14px', 
-                  height: '14px', 
-                  minWidth: '14px', 
-                  minHeight: '14px', 
-                  maxWidth: '14px', 
-                  maxHeight: '14px' 
-                }} 
-              /> 
-              <span>Resetar para exemplo</span>
-            </button>
-          </div>
-
-          {/* Painel Direito: Preview + DAX */}
+          {/* Coluna Esquerda: Editores (HTML/CSS e DAX) */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',
-            height: '480px',
-            boxSizing: 'border-box'
+            minHeight: 0 // Fundamental para que o flex não estoure pelo conteúdo interno
           }}>
             
-            {/* Preview (Sandbox Fixa sem Scroll) */}
+            {/* Card 1: Seu HTML / CSS */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
               padding: '20px',
-              height: '228px',
-              minHeight: '228px',
-              maxHeight: '228px',
               display: 'flex',
               flexDirection: 'column',
-              boxSizing: 'border-box',
-              flexShrink: 0
+              flex: 1, // Divide metade do espaço perfeitamente
+              minHeight: 0,
+              boxSizing: 'border-box'
             }}>
               <label style={{
                 fontSize: '14px',
@@ -220,55 +153,85 @@ const HtmlToDaxConverter = () => {
                 display: 'block',
                 flexShrink: 0
               }}>
-                Preview
+                Seu HTML / CSS
               </label>
-              
-              {/* Contêiner restrito sem rolagens */}
-              <div
-                ref={containerRef}
+              <textarea
+                value={html}
+                onChange={(e) => setHtml(e.target.value)}
                 style={{
-                  background: '#FFFFFF',
+                  width: '100%',
+                  flex: 1, // Preenche a altura restante do card
+                  minHeight: 0, // Impede que o conteúdo empurre o tamanho do textarea
+                  padding: '12px',
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
-                  padding: '16px',
-                  flex: '1 1 0%',
-                  minHeight: 0,
-                  overflow: 'hidden', /* Força ocultação de barras de rolagem */
-                  position: 'relative',
-                  boxSizing: 'border-box',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '12px',
+                  lineHeight: '1.6',
+                  color: '#1A1814',
+                  backgroundColor: '#FFFFFF',
+                  resize: 'none',
+                  overflowY: 'auto',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Cole seu HTML aqui..."
+              />
+              <button
+                onClick={() => setHtml(defaultHtml)}
+                style={{
+                  marginTop: '12px',
+                  height: '38px',
+                  minHeight: '38px',
+                  maxHeight: '38px',
+                  padding: '0 16px',
+                  background: 'transparent',
+                  border: '0.5px solid #D4CFC4',
+                  borderRadius: '6px',
+                  color: '#7A746A',
+                  fontSize: '13px',
+                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                  flexShrink: 0,
+                  boxSizing: 'border-box'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.background = '#E0D9CC';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = 'transparent';
                 }}
               >
-                {/* Elemento interno escalado via CSS Transform para caber nas dimensões exatas */}
-                <div 
-                  ref={contentRef}
+                <RefreshCw 
+                  size={14} 
                   style={{ 
-                    width: '100%',
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'center center',
-                    transition: 'transform 0.15s ease-out',
-                    contain: 'content' 
-                  }}
-                  dangerouslySetInnerHTML={{ __html: html }}
-                />
-              </div>
+                    flexShrink: 0, 
+                    width: '14px', 
+                    height: '14px', 
+                    minWidth: '14px', 
+                    minHeight: '14px', 
+                    maxWidth: '14px', 
+                    maxHeight: '14px' 
+                  }} 
+                /> 
+                <span>Resetar para exemplo</span>
+              </button>
             </div>
 
-            {/* DAX Output - Multilinhas */}
+            {/* Card 2: DAX Output */}
             <div style={{
               background: '#F0EDE6',
               border: '0.5px solid #D4CFC4',
               borderRadius: '12px',
               padding: '20px',
-              height: '228px',
-              minHeight: '228px',
-              maxHeight: '228px',
               display: 'flex',
               flexDirection: 'column',
-              boxSizing: 'border-box',
-              flexShrink: 0
+              flex: 1, // Divide a outra metade do espaço perfeitamente
+              minHeight: 0,
+              boxSizing: 'border-box'
             }}>
               <label style={{
                 fontSize: '14px',
@@ -286,9 +249,9 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  flex: '1 1 0%',
-                  minHeight: 0,
-                  overflowY: 'scroll',
+                  flex: 1, // Preenche a altura restante do card
+                  minHeight: 0, // Impede o crescimento do card além da área delimitada
+                  overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
                   color: '#1A1814',
@@ -346,10 +309,68 @@ const HtmlToDaxConverter = () => {
                 <span>{copied ? 'Copiado!' : 'Copiar DAX'}</span>
               </button>
             </div>
+
           </div>
+
+          {/* Coluna Direita: Preview Unificado */}
+          <div style={{
+            background: '#F0EDE6',
+            border: '0.5px solid #D4CFC4',
+            borderRadius: '12px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box',
+            minHeight: 0 // Essencial para estabilidade
+          }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#1A1814',
+              marginBottom: '12px',
+              display: 'block',
+              flexShrink: 0
+            }}>
+              Preview
+            </label>
+            
+            {/* Contêiner restrito centralizado que toma o card todo */}
+            <div
+              ref={containerRef}
+              style={{
+                background: '#FFFFFF',
+                border: '0.5px solid #D4CFC4',
+                borderRadius: '8px',
+                padding: '16px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                overflow: 'hidden', // Força ocultação de barras de rolagem
+                position: 'relative',
+                boxSizing: 'border-box',
+                minHeight: 0
+              }}
+            >
+              {/* Elemento interno escalado via CSS Transform */}
+              <div 
+                ref={contentRef}
+                style={{ 
+                  display: 'inline-block',
+                  maxWidth: '100%',
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center center',
+                  transition: 'transform 0.15s ease-out',
+                  contain: 'content' 
+                }}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </div>
+          </div>
+
         </div>
 
-        {/* Instruções */}
+        {/* Instruções - Localizadas após o grid de edição */}
         <div style={{
           background: '#F0EDE6',
           border: '0.5px solid #D4CFC4',
