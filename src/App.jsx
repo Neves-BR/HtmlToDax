@@ -403,7 +403,6 @@ const HtmlToDaxConverter = () => {
         </div>
       </div>
     </div>
-  );
 };
 
 export default HtmlToDaxConverter;
