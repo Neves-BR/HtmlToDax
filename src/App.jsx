@@ -88,7 +88,7 @@ const HtmlToDaxConverter = () => {
       width: '100%'
     }}>
       <div style={{
-        maxWidth: '1500px', // Nova largura máxima atualizada
+        maxWidth: '1500px',
         margin: '0 auto'
       }}>
         {/* Header */}
@@ -120,7 +120,7 @@ const HtmlToDaxConverter = () => {
           gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           gap: '24px',
           alignItems: 'stretch',
-          height: isMobile ? 'auto' : 'calc(100vh - 210px)', // Altura travada
+          height: isMobile ? 'auto' : 'calc(100vh - 210px)',
           minHeight: '620px',
           marginBottom: '24px'
         }}>
@@ -130,7 +130,7 @@ const HtmlToDaxConverter = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',
-            minHeight: 0 // Fundamental para que o flex não estoure pelo conteúdo interno
+            minHeight: 0
           }}>
             
             {/* Card 1: Seu HTML / CSS */}
@@ -141,7 +141,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: 1, // Divide metade do espaço perfeitamente
+              flex: 1,
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -160,8 +160,8 @@ const HtmlToDaxConverter = () => {
                 onChange={(e) => setHtml(e.target.value)}
                 style={{
                   width: '100%',
-                  flex: 1, // Preenche a altura restante do card
-                  minHeight: 0, // Impede que o conteúdo empurre o tamanho do textarea
+                  flex: 1,
+                  minHeight: 0,
                   padding: '12px',
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
@@ -229,7 +229,7 @@ const HtmlToDaxConverter = () => {
               padding: '20px',
               display: 'flex',
               flexDirection: 'column',
-              flex: 1, // Divide a outra metade do espaço perfeitamente
+              flex: 1,
               minHeight: 0,
               boxSizing: 'border-box'
             }}>
@@ -249,8 +249,8 @@ const HtmlToDaxConverter = () => {
                   border: '0.5px solid #D4CFC4',
                   borderRadius: '8px',
                   padding: '12px',
-                  flex: 1, // Preenche a altura restante do card
-                  minHeight: 0, // Impede o crescimento do card além da área delimitada
+                  flex: 1,
+                  minHeight: 0,
                   overflowY: 'auto',
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
@@ -321,7 +321,7 @@ const HtmlToDaxConverter = () => {
             display: 'flex',
             flexDirection: 'column',
             boxSizing: 'border-box',
-            minHeight: 0 // Essencial para estabilidade
+            minHeight: 0
           }}>
             <label style={{
               fontSize: '14px',
@@ -331,40 +331,51 @@ const HtmlToDaxConverter = () => {
               display: 'block',
               flexShrink: 0
             }}>
-              Preview
+              Preview (16:9)
             </label>
             
-            {/* Contêiner restrito centralizado que toma o card todo */}
-            <div
-              ref={containerRef}
-              style={{
-                background: '#FFFFFF',
-                border: '0.5px solid #D4CFC4',
-                borderRadius: '8px',
-                padding: '16px',
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                overflow: 'hidden', // Força ocultação de barras de rolagem
-                position: 'relative',
-                boxSizing: 'border-box',
-                minHeight: 0
-              }}
-            >
-              {/* Elemento interno escalado via CSS Transform */}
-              <div 
-                ref={contentRef}
-                style={{ 
-                  display: 'inline-block',
-                  maxWidth: '100%',
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'center center',
-                  transition: 'transform 0.15s ease-out',
-                  contain: 'content' 
+            {/* Contêiner flexível para centralizar o canvas 16:9 na tela toda */}
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: 0,
+              width: '100%'
+            }}>
+              {/* O Canvas 16:9 real */}
+              <div
+                ref={containerRef}
+                style={{
+                  aspectRatio: '16 / 9',
+                  width: '100%',
+                  maxHeight: '100%',
+                  background: '#FFFFFF',
+                  border: '0.5px solid #D4CFC4',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  overflow: 'hidden', // Força ocultação de barras de rolagem
+                  position: 'relative',
+                  boxSizing: 'border-box'
                 }}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+              >
+                {/* Elemento interno escalado via CSS Transform */}
+                <div 
+                  ref={contentRef}
+                  style={{ 
+                    display: 'inline-block',
+                    maxWidth: '100%',
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.15s ease-out',
+                    contain: 'content' 
+                  }}
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              </div>
             </div>
           </div>
 
